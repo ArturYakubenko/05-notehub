@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { Note, NoteTag } from "../types/note";
 
+
 export interface CreateNoteParams {
   title: string;
   content?: string;
@@ -16,31 +17,28 @@ export interface FetchNotesResponse {
 const token = import.meta.env.VITE_NOTEHUB_TOKEN;
 const API_URL = "https://notehub-public.goit.study/api/notes";
 
-// Fetch notes
-export async function fetchNotes(
-  page: number,
-  search: string,
-  limit: number
-): Promise<FetchNotesResponse> {
+
+export const fetchNotes = async (page: number, search: string, perPage: number) => {
   try {
-    const res = await fetch(`${API_URL}?page=${page}&search=${search}&limit=${limit}`, {
+
+    const response = await axios.get(API_URL, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: ` bearer ${token}`,
       },
-    });
-
-    if (!res.ok) throw new Error("Failed to fetch notes");
-
-    const data = await res.json();
-
+      params: {
+        page: page,
+        search: search,
+        perPage: perPage
+      }
+    })
     return {
-      notes: data.notes ?? [],
-      totalPages: data.totalPages ?? 0,
-      totalNotes: data.totalNotes ?? 0,
+      notes: response.data.notes ?? [],
+      totalPages: response.data.totalPages ?? 0,
+      totalNotes: response.data.totalNotes ?? 0,
     };
-  } catch (error) {
-    console.error("Ошибка при получении заметок:", error);
-    // Всегда возвращаем объект FetchNotesResponse, никогда undefined
+  }
+  catch {
+    console.log("error")
     return {
       notes: [],
       totalPages: 0,
@@ -48,6 +46,7 @@ export async function fetchNotes(
     };
   }
 }
+    
 
 // Delete note
 export const deleteNote = async (id: string): Promise<Note> => {
