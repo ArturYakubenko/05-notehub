@@ -16,7 +16,7 @@ export interface FetchNotesResponse {
 
 const token = import.meta.env.VITE_NOTEHUB_TOKEN;
 const API_URL = "https://notehub-public.goit.study/api/notes";
-
+//
 
 export const fetchNotes = async (page: number, search: string, perPage: number) => {
   try {
