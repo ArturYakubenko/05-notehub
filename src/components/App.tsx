@@ -1,17 +1,17 @@
 import css from "./App.module.css";
-import Modal from "../Modal/Modal";
-import NoteForm from "../NoteForm/NoteForm";
-import NoteList from "../NoteList/NoteList";
-import Pagination from "../Pagination/Pagination";
-import SearchBox from "../SearchBox/SearchBox";
-import { fetchNotes, createNote, deleteNote, type FetchNotesResponse } from "../../services/noteService";
+import Modal from "./Modal/Modal";
+import NoteForm from "./NoteForm/NoteForm";
+import NoteList from "./NoteList/NoteList";
+import Pagination from "./Pagination/Pagination";
+import SearchBox from "./SearchBox/SearchBox";
+import { fetchNotes, createNote, deleteNote, type FetchNotesResponse } from "../services/noteService";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
-import Loader from "../Loader/Loader";
-import ErrorMessage from "../ErrorMessage/ErrorMessage";
-import EmptyState from "../EmptyState/EmptyState";
-import type { NoteTag } from "../../types/note";
+import Loader from "./Loader/Loader";
+import ErrorMessage from "./ErrorMessage/ErrorMessage";
+import EmptyState from "./EmptyState/EmptyState";
+import type { NoteTag } from "../types/note";
 
 // Параметры для создания заметки
 interface CreateNoteParams {
