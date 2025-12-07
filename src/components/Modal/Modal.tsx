@@ -5,29 +5,33 @@ import css from "./Modal.module.css";
 
 interface ModalProps {
   children: ReactNode;
-  openModal: () => void;
+  closeModal: () => void;
 }
 
-const Modal: FC<ModalProps> = ({ children, openModal }) => {
+const Modal: FC<ModalProps> = ({ children, closeModal }) => {
  
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        openModal();
+        closeModal();
       }
     };
     window.addEventListener("keydown", handleEsc);
+     const originalOverflow = document.body.style.overflow;
+          document.body.style.overflow = "hidden";
+    
 
     return () => {
       window.removeEventListener("keydown", handleEsc);
+         document.body.style.overflow = originalOverflow;
     };
-  }, [openModal]);
+  }, [closeModal]);
 
   const modalRoot = document.getElementById("modal-root");
   if (!modalRoot) return null;
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.currentTarget === e.target) openModal();
+    if (e.currentTarget === e.target) closeModal();
   };
 
   const modalContent = (

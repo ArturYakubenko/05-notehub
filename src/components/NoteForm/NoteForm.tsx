@@ -1,25 +1,22 @@
 import type { FC } from "react";
-import { Formik, Form, Field, ErrorMessage, } from "formik";
-import type {FormikHelpers} from "formik"
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Yup from "yup";
 import css from "./NoteForm.module.css";
+import { createNote } from '../../services/noteService.ts'
 
-// Тип для поля "tag"
-export type NoteTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+export const NOTE_TAGS = ["Todo", "Work", "Personal", "Meeting", "Shopping"] as const;
+export type NoteTag = (typeof NOTE_TAGS)[number];
 
-// Тип значений формы
 interface NoteFormValues {
   title: string;
-  content: string;
+  content?: string;
   tag: NoteTag;
 }
 
-
 interface NoteFormProps {
-  addNote: (note: NoteFormValues) => void;
-  openModal: () => void;
+  closeModal: () => void; 
 }
-
 
 const validationSchema = Yup.object({
   title: Yup.string()
@@ -30,35 +27,42 @@ const validationSchema = Yup.object({
   content: Yup.string().max(500, "Максимум 500 символів"),
 
   tag: Yup.string()
-    .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"], "Невірний тег")
+    .oneOf(NOTE_TAGS, "Невірний тег")
     .required("Обов’язкове поле"),
 });
 
-const NoteForm: FC<NoteFormProps> = ({ addNote, openModal }) => {
+const NoteForm: FC<NoteFormProps> = ({ closeModal }) => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      closeModal(); 
+    },
+  });
+
   return (
-    <Formik
+    <Formik<NoteFormValues>
       initialValues={{
         title: "",
         content: "",
         tag: "Todo",
       }}
       validationSchema={validationSchema}
-      onSubmit={(values: NoteFormValues, actions: FormikHelpers<NoteFormValues>) => {
-        addNote(values);      
-        openModal();           
-        actions.resetForm();   
+      onSubmit={(values, actions) => {
+        mutation.mutate(values);
+        actions.resetForm();
       }}
     >
       {() => (
         <Form className={css.form}>
-    
           <div className={css.formGroup}>
             <label htmlFor="title">Title</label>
             <Field id="title" name="title" className={css.input} />
             <ErrorMessage name="title" component="span" className={css.error} />
           </div>
 
-      
           <div className={css.formGroup}>
             <label htmlFor="content">Content</label>
             <Field
@@ -71,26 +75,33 @@ const NoteForm: FC<NoteFormProps> = ({ addNote, openModal }) => {
             <ErrorMessage name="content" component="span" className={css.error} />
           </div>
 
-      
           <div className={css.formGroup}>
             <label htmlFor="tag">Tag</label>
             <Field as="select" id="tag" name="tag" className={css.select}>
-              <option value="Todo">Todo</option>
-              <option value="Work">Work</option>
-              <option value="Personal">Personal</option>
-              <option value="Meeting">Meeting</option>
-              <option value="Shopping">Shopping</option>
+              {NOTE_TAGS.map(tag => (
+                <option key={tag} value={tag}>
+                  {tag}
+                </option>
+              ))}
             </Field>
             <ErrorMessage name="tag" component="span" className={css.error} />
           </div>
 
-        
           <div className={css.actions}>
-            <button type="button" className={css.cancelButton} onClick={openModal}>
+            <button
+              type="button"
+              className={css.cancelButton}
+              onClick={closeModal}
+            >
               Cancel
             </button>
-            <button type="submit" className={css.submitButton}>
-              Create note
+
+            <button
+              type="submit"
+              className={css.submitButton}
+              disabled={mutation.isPending} 
+            >
+              {mutation.isPending ? "Saving..." : "Create note"}
             </button>
           </div>
         </Form>

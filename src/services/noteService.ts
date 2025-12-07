@@ -11,7 +11,6 @@ export interface CreateNoteParams {
 export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
-  totalNotes: number;
 }
 
 const token = import.meta.env.VITE_NOTEHUB_TOKEN;
@@ -21,9 +20,9 @@ const API_URL = "https://notehub-public.goit.study/api/notes";
 export const fetchNotes = async (page: number, search: string, perPage: number) => {
   try {
 
-    const response = await axios.get(API_URL, {
+    const response = await axios.get<FetchNotesResponse>(API_URL, {
       headers: {
-        Authorization: ` bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       params: {
         page: page,
@@ -34,7 +33,6 @@ export const fetchNotes = async (page: number, search: string, perPage: number) 
     return {
       notes: response.data.notes ?? [],
       totalPages: response.data.totalPages ?? 0,
-      totalNotes: response.data.totalNotes ?? 0,
     };
   }
   catch {
