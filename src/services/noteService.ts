@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { Note, NoteTag } from "../types/note";
 
-
 export interface CreateNoteParams {
   title: string;
   content?: string;
@@ -15,11 +14,10 @@ export interface FetchNotesResponse {
 
 const token = import.meta.env.VITE_NOTEHUB_TOKEN;
 const API_URL = "https://notehub-public.goit.study/api/notes";
-//
 
+// Оновлена функція для отримання нотаток
 export const fetchNotes = async (page: number, search: string, perPage: number) => {
   try {
-
     const response = await axios.get<FetchNotesResponse>(API_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -27,26 +25,25 @@ export const fetchNotes = async (page: number, search: string, perPage: number) 
       params: {
         page: page,
         search: search,
-        perPage: perPage
-      }
-    })
+        perPage: perPage,
+      },
+    });
+    
     return {
       notes: response.data.notes ?? [],
       totalPages: response.data.totalPages ?? 0,
     };
-  }
-  catch {
-    console.log("error")
+  } catch (error) {
+    // Повертаємо об'єкт, що відповідає інтерфейсу FetchNotesResponse
+    console.error("Error fetching notes:", error);
     return {
-      notes: [],
-      totalPages: 0,
-      totalNotes: 0,
+      notes: [],          // Повертаємо порожній список нотаток
+      totalPages: 0,      // Повертаємо 0 сторінок
     };
   }
-}
-    
+};
 
-// Delete note
+// Функція для видалення нотатки
 export const deleteNote = async (id: string): Promise<Note> => {
   try {
     const response = await axios.delete<Note>(`${API_URL}/${id}`, {
@@ -62,7 +59,7 @@ export const deleteNote = async (id: string): Promise<Note> => {
   }
 };
 
-// Create note
+// Функція для створення нотатки
 export const createNote = async (noteData: CreateNoteParams): Promise<Note> => {
   try {
     const response = await axios.post<Note>(API_URL, noteData, {

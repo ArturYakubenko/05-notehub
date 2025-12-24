@@ -13,7 +13,7 @@ import type { FetchNotesResponse } from "../../services/noteService";
 
 
 import { useState } from "react";
-import { useQuery,  } from "@tanstack/react-query";
+import { useQuery, keepPreviousData  } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 
 
@@ -37,6 +37,7 @@ export default function App() {
   const { data, isError, isLoading } = useQuery<FetchNotesResponse, Error>({
     queryKey: ["notes", page, debouncedSearch],
     queryFn: () => fetchNotes(page, debouncedSearch, 12),
+    placeholderData: keepPreviousData,
   });
 
   const notes = data?.notes ?? [];
